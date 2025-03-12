@@ -1,0 +1,1 @@
+ALTER TABLE `shared` ADD `role` text DEFAULT 'viewer' NOT NULL;

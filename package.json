@@ -1,0 +1,49 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:migrate:prod": "wrangler d1 migrations apply folder-demo --remote",
+    "deploy": "npm run build && wrangler deploy && npm run db:migrate:prod"
+  },
+  "dependencies": {
+    "@formkit/auto-animate": "^0.8.2",
+    "@iconify-json/lucide": "^1.2.26",
+    "@iconify-json/simple-icons": "^1.2.26",
+    "@nuxt/ui": "^3.0.0-beta.2",
+    "@nuxthub/core": "^0.8.17",
+    "drizzle-orm": "^0.40.0",
+    "nuxt": "^3.15.4",
+    "nuxt-auth-utils": "^0.5.16",
+    "ulid": "^2.3.0",
+    "ulidx": "^2.4.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250310.0",
+    "@nuxt/eslint": "^1.1.0",
+    "drizzle-kit": "^0.30.5",
+    "eslint": "^9.21.0",
+    "typescript": "^5.7.3",
+    "wrangler": "^3.112.0"
+  },
+  "overrides": {
+    "tailwindcss": "4.0.7",
+    "@tailwindcss/node": "4.0.7",
+    "@tailwindcss/postcss": "4.0.7",
+    "@tailwindcss/vite": "4.0.7"
+  },
+  "resolutions": {
+    "tailwindcss": "4.0.7",
+    "@tailwindcss/postcss": "4.0.7",
+    "@tailwindcss/vite": "4.0.7"
+  }
+}
