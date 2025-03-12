@@ -4,7 +4,7 @@ const signOut = () => {
   clear();
   navigateTo("/auth/signin");
 };
-const items = ref([
+const items = computed(() => [
   [
     {
       label: user.value?.name,
@@ -25,7 +25,7 @@ const items = ref([
 </script>
 
 <template>
-  <div>
+  <div v-if="user" class="relative">
     <UDropdownMenu
       :items="items"
       :ui="{
@@ -33,11 +33,13 @@ const items = ref([
       }"
     >
       <UAvatar
+        v-if="user?.provider === 'github'"
         :src="user?.avatar"
         :alt="user?.name"
         size="xl"
         class="border border-neutral-200 dark:border-neutral-700"
       />
+      <UButton v-else icon="lucide:user" variant="text" size="xl" />
     </UDropdownMenu>
   </div>
 </template>

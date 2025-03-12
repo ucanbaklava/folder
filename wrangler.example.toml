@@ -33,3 +33,5 @@ directory = "./dist/public/"
 NUXT_SESSION_PASSWORD="" # Set your session password with at least 32 characters
 NUXT_OAUTH_GITHUB_CLIENT_ID="" # Set your GitHub OAuth client ID
 NUXT_OAUTH_GITHUB_CLIENT_SECRET="" # Set your GitHub OAuth client secret
+NUXT_OAUTH_GOOGLE_CLIENT_ID=""  # Set your Google OAuth client ID
+NUXT_OAUTH_GOOGLE_CLIENT_SECRET="" # Set your Google OAuth client Secret

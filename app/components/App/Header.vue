@@ -21,6 +21,7 @@ defineShortcuts({
       </UTooltip>
     </template>
     <Search v-if="route.params.bucket" />
+    <div v-else class="grow"></div>
     <ColorMode />
     <ProfileMenu />
   </header>

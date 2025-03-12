@@ -7,14 +7,12 @@ const providers = {
   github: {
     icon: "logos:github-icon",
     label: "Continue with GitHub",
+    class: "size-6 *:fill-white",
   },
   google: {
     icon: "logos:google-icon",
     label: "Get started with Google",
-  },
-  linkedin: {
-    icon: "logos:linkedin-icon",
-    label: "Get started with Google",
+    class: "size-6",
   },
 };
 </script>
@@ -27,7 +25,10 @@ const providers = {
     as-child
   >
     <a :href="`/api/auth/${provider}`">
-      <Icon :name="providers[provider].icon" class="size-6 *:fill-white" />
+      <Icon
+        :name="providers[provider].icon"
+        :class="providers[provider].class"
+      />
       <span class="ml-2">{{ label || providers[provider].label }}</span>
     </a>
   </UButton>

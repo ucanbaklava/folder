@@ -15,8 +15,7 @@ const props = defineProps<{
       <p class="text-neutral-500 text-sm">{{ description }}</p>
       <div class="flex flex-col gap-4 py-4">
         <AuthButton provider="github" label="Continue with Github" />
-        <!-- <AuthButton provider="google" label="Continue with Google" />
-        <AuthButton provider="linkedin" label="Continue with LinkedIn" /> -->
+        <AuthButton provider="google" label="Continue with Google" />
         <UAlert
           title="Note"
           icon="lucide:message-square-warning"
