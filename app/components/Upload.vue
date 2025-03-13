@@ -38,6 +38,7 @@ watch(allUploaded, (value) => {
     emit("success");
   }
 });
+
 const uploadFile = async (file) => {
   // Get the relative path of the file within the uploaded folder structure
   // webkitRelativePath gives the path relative to the selected folder (e.g., "assets/images/background.png")
@@ -66,16 +67,16 @@ const uploadFile = async (file) => {
       uploadPath = `${currentFolderPath}/${pathParts.join("/")}`;
     }
   }
+  const partSize = chunkSize(file.size);
   const upload = useMultipartUpload(
     `/upload/${route.params.bucket}/${route.params.id || "root"}`,
     {
-      partSize: 10 * 1024 * 1024, // 10MB
-      concurrent: 5,
+      partSize: partSize,
+      concurrent: 10,
       prefix: uploadPath,
     }
   );
   const { progress, completed, abort } = upload(file);
-
   // Watch the progress
   watch(progress, (value) => {
     uploadProgress.value[relativePath] = value;
@@ -138,7 +139,7 @@ const overallProgress = computed(() => {
           </div>
 
           <div
-            v-if="Object.keys(uploadProgress).length > 1"
+            v-if="Object.keys(uploadProgress).length >= 1"
             class="max-h-60 overflow-y-auto space-y-2"
           >
             <div
@@ -148,7 +149,7 @@ const overallProgress = computed(() => {
             >
               <div class="flex justify-between mb-1">
                 <p class="truncate">{{ fileName }}</p>
-                <span>{{ progress }}%</span>
+                <span>{{ progress.toFixed(1) }}%</span>
               </div>
               <UProgress :modelValue="progress" :max="100" color="primary" />
             </div>
