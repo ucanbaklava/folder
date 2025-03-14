@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { auth } = useAppConfig();
 const props = defineProps<{
   title: string;
   description: string;
@@ -14,8 +15,11 @@ const props = defineProps<{
       <h3 class="font-semibold text-neutral-950">{{ title }}</h3>
       <p class="text-neutral-500 text-sm">{{ description }}</p>
       <div class="flex flex-col gap-4 py-4">
-        <AuthButton provider="github" label="Continue with Github" />
-        <AuthButton provider="google" label="Continue with Google" />
+        <AuthButton
+          v-for="provider in auth.providers"
+          :key="provider"
+          :provider="provider"
+        />
         <UAlert
           title="Note"
           icon="lucide:message-square-warning"

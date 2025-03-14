@@ -11,7 +11,7 @@ const providers = {
   },
   google: {
     icon: "logos:google-icon",
-    label: "Get started with Google",
+    label: "Continue with Google",
     class: "size-6",
   },
 };
@@ -21,6 +21,8 @@ const providers = {
     v-if="providers[provider]"
     variant="solid"
     color="neutral"
+    size="xl"
+    class="text-sm"
     block
     as-child
   >

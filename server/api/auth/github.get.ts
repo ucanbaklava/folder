@@ -1,19 +1,18 @@
-import { createOrGetUser } from "~~/server/utils/auth";
+import { authHandler } from "~~/server/utils/auth";
 
 export default defineOAuthGitHubEventHandler({
   config: {
     emailRequired: true,
   },
-  async onSuccess(event, { user }) {
+  async onSuccess(event: any, { user }: { user: any }) {
     const { email, name, avatar_url: avatar } = user;
-    const registeredUser = await createOrGetUser({
+    const authUser = await authHandler({
       name,
       email,
-      avatar,
       provider: "github",
-      email_verified: true,
+      avatar,
     });
-    await setUserSession(event, { user: registeredUser });
+    await setUserSession(event, { user: authUser });
     return sendRedirect(event, "/");
   },
 });

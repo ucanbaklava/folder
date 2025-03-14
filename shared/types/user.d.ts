@@ -12,7 +12,6 @@ type UserParams = {
   email: string;
   avatar?: string;
   provider: "google" | "github";
-  email_verified: boolean;
 };
 
 type Role = "viewer" | "editor" | "owner" | "none";

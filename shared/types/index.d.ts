@@ -1,3 +1,10 @@
+type AuthConfig = {
+  providers: string[];
+  domains: string[];
+  emails: string[];
+  allowSignup: boolean;
+};
+
 type Bucket = {
   id: string;
   name: string;

@@ -1,21 +1,18 @@
+import { authHandler } from "~~/server/utils/auth";
+
 export default defineOAuthGoogleEventHandler({
   config: {
     emailRequired: true,
   },
-  async onSuccess(event, { user }) {
+  async onSuccess(event: any, { user }: { user: any }) {
     const { email, name, picture: avatar } = user;
-    try {
-      const registeredUser = await createOrGetUser({
-        name,
-        email,
-        avatar,
-        provider: "google",
-        email_verified: true,
-      });
-      await setUserSession(event, { user: registeredUser });
-      return sendRedirect(event, "/");
-    } catch (error) {
-      console.error(error);
-    }
+    const authUser = await authHandler({
+      name,
+      email,
+      provider: "google",
+      avatar,
+    });
+    await setUserSession(event, { user: authUser });
+    return sendRedirect(event, "/");
   },
 });
