@@ -48,3 +48,22 @@ export const getFileType = (path: string) => {
   // @ts-ignore
   return allowedExtensions[extension] || "application/octet-stream";
 };
+
+export const getVisibility = (
+  breadcrumb: FolderBreadcrumb[],
+  visibility: string
+) => {
+  if (visibility && visibility !== "inherit") {
+    return visibility;
+  }
+  if (!breadcrumb || breadcrumb.length === 0) {
+    return "private";
+  }
+  const reversedBreadcrumb = [...breadcrumb].reverse();
+  for (const folder of reversedBreadcrumb) {
+    if (folder.visibility && folder.visibility !== "inherit") {
+      return folder.visibility;
+    }
+  }
+  return "private";
+};

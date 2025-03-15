@@ -16,4 +16,5 @@ type Bucket = {
 type FolderBreadcrumb = {
   id: string;
   name: string;
+  visibility: "public" | "private" | "inherit";
 };

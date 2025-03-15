@@ -3,6 +3,19 @@ import { verifyBucket } from "~~/server/utils/permission";
 
 export default defineEventHandler(async (event) => {
   const { user } = await verifyBucket(event);
+  const { bucket, id } = getRouterParams(event);
+  let breadcrumb: FolderBreadcrumb[] = [];
+  if (id !== "root") {
+    const folder = await getFolder(id);
+    if (folder && folder.path) {
+      breadcrumb = await getBreadcrumb(bucket, folder.path);
+    }
+  }
   //@ts-ignore
-  return await getFiles(event, user.id);
+  const files = await getFiles(event, user.id);
+  const data = files.data.map((file) => ({
+    ...file,
+    visibility: getVisibility(breadcrumb, file.visibility),
+  }));
+  return { data, nextPage: files.nextPage };
 });

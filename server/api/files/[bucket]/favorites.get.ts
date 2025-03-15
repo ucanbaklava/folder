@@ -1,8 +1,13 @@
-import { getFavorites } from "~~/server/utils/db";
+import {
+  getComputedVisibility,
+  getFavorites,
+  transformList,
+} from "~~/server/utils/db";
 import { verifyBucket } from "~~/server/utils/permission";
 
 export default defineEventHandler(async (event) => {
-  const { user } = await verifyBucket(event);
+  const { bucket, user } = await verifyBucket(event);
   //@ts-ignore
-  return await getFavorites(event, user.id);
+  const files = await getFavorites(event, user.id);
+  return await transformList(bucket.name, files);
 });

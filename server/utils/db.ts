@@ -400,26 +400,6 @@ export const searchFiles = async (bucketName: string, query: string) => {
   return data;
 };
 
-export const getBreadcrumbs = async (bucketName: string, path: string) => {
-  const pathSegments = path.split("/");
-  if (pathSegments.length > 0) {
-    const breadcrumbs = [];
-    for (let i = 0; i < pathSegments.length; i++) {
-      const path = pathSegments.slice(0, i + 1).join("/");
-      if (path) {
-        const folder = await getFile(bucketName, path);
-        if (folder) {
-          breadcrumbs.push({
-            id: folder.id,
-            name: folder.name,
-          });
-        }
-      }
-    }
-    return breadcrumbs;
-  }
-};
-
 export const deleteFiles = async (bucketName: string, items: string[]) => {
   // TODO: delete children also, if the type is folder
   // TODO: move files form bucket to trash
@@ -464,7 +444,7 @@ export const ensureFile = async (bucketName: string, id: string) => {
   return file;
 };
 
-export const getBreadcrumbPath = async (bucketName: string, path: string) => {
+export const getBreadcrumb = async (bucketName: string, path: string) => {
   // Skip if path is empty or just the bucket
   if (!path || path === bucketName) return [];
 
@@ -498,10 +478,13 @@ export const getBreadcrumbPath = async (bucketName: string, path: string) => {
     .orderBy(sql`LENGTH(${files.path})`);
 
   // Sort breadcrumbs in path order since SQL might return in a different order
-  const breadcrumbMap = breadcrumbFiles.reduce((acc, file) => {
-    acc[file.path] = file;
-    return acc;
-  }, {});
+  const breadcrumbMap = breadcrumbFiles.reduce(
+    (acc: { [key: string]: any }, file) => {
+      acc[file.path] = file;
+      return acc;
+    },
+    {}
+  );
 
   // Now create the ordered breadcrumbs array
   const orderedBreadcrumbs = [];
@@ -510,6 +493,7 @@ export const getBreadcrumbPath = async (bucketName: string, path: string) => {
       orderedBreadcrumbs.push({
         id: breadcrumbMap[currentPath].id,
         name: breadcrumbMap[currentPath].name,
+        visibility: breadcrumbMap[currentPath].visibility,
       });
     }
   }
@@ -703,4 +687,26 @@ export const updateContentType = async (id: string, contentType: string) => {
       contentType,
     })
     .where(eq(files.id, id));
+};
+
+export const getComputedVisibility = async (bucketName: string, file: any) => {
+  if (file.visibility && file.visibility !== "inherit") {
+    return file.visibility;
+  }
+  if (file.parentId === "root") {
+    return "private";
+  }
+  const folderPath = file.path.split("/").slice(0, -1).join("/");
+  const breadcrumb = await getBreadcrumb(bucketName, folderPath);
+  return getVisibility(breadcrumb, file.visibility);
+};
+
+export const transformList = async (bucketName: string, files: any) => {
+  const data = await Promise.all(
+    files.data.map(async (file: any) => ({
+      ...file,
+      visibility: await getComputedVisibility(bucketName, file),
+    }))
+  );
+  return { data, nextPage: files.nextPage };
 };

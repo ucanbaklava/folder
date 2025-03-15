@@ -1,8 +1,9 @@
-import { getRecent } from "~~/server/utils/db";
+import { getRecent, transformList } from "~~/server/utils/db";
 import { verifyBucket } from "~~/server/utils/permission";
 
 export default defineEventHandler(async (event) => {
-  const { user } = await verifyBucket(event);
+  const { bucket, user } = await verifyBucket(event);
   //@ts-ignore
-  return await getRecent(event, user.id);
+  const files = await getRecent(event, user.id);
+  return await transformList(bucket.name, files);
 });
