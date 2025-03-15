@@ -13,7 +13,7 @@ export const users = sqliteTable("users", {
   email: text("email").unique().notNull(),
   avatar: text("avatar"),
   country: text("country"),
-  status: text("status").default("draft").notNull(),
+  status: text("status").default("active").notNull(),
   provider: text("provider"),
   createdAt: createdAt,
 });

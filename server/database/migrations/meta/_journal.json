@@ -71,6 +71,13 @@
       "when": 1741688142140,
       "tag": "0009_sweet_mathemanic",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1742036478764,
+      "tag": "0010_optimal_blob",
+      "breakpoints": true
     }
   ]
 }

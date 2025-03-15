@@ -36,6 +36,12 @@ export const authHandler = async ({
   }
   const registeredUser = await getUserByEmail(email);
   if (registeredUser) {
+    if (registeredUser.status !== "active") {
+      throw createError({
+        message: "User is not active",
+        status: 403,
+      });
+    }
     return registeredUser;
   } else {
     if (!authConfig.allowSignup) {
