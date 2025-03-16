@@ -27,10 +27,15 @@ const onApply = () => {
   emit("update", filters.value);
   open.value = false;
 };
+const hasFilters = computed(() => {
+  return Object.values(filters.value).some((value) => value);
+});
 </script>
 <template>
   <UPopover arrow v-model:open="open">
-    <UButton icon="lucide:filter" class="ml-auto" />
+    <UChip :show="hasFilters" inset>
+      <UButton icon="lucide:filter" class="ml-auto" />
+    </UChip>
     <template #content>
       <div class="flex flex-col gap-4 p-4 w-48">
         <USwitch v-model="filters.drive" label="Entire Drive" />
