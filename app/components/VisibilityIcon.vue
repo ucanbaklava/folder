@@ -9,9 +9,11 @@ const visibilityIcons = {
 };
 </script>
 <template>
-  <Icon
-    v-if="visibilityIcons[visibility]"
-    :name="visibilityIcons[visibility]"
-    class="opacity-70 cursor-pointer ml-auto min-w-4"
-  />
+  <UTooltip :text="visibility" placement="top" :delay-duration="0">
+    <Icon
+      v-if="visibilityIcons[visibility]"
+      :name="visibilityIcons[visibility]"
+      class="opacity-70 ml-auto min-w-4"
+    />
+  </UTooltip>
 </template>
