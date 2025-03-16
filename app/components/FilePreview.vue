@@ -50,7 +50,7 @@ const file = computed(() => props.files[opened.value]);
                   File Size
                 </div>
                 <div class="text-neutral-700 font-light">
-                  {{ formatBytes(file?.size) }}
+                  {{ formatBytes(file?.size ?? 0) }}
                 </div>
               </div>
               <div>
