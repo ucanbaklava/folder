@@ -14,6 +14,7 @@ const fileColumns = {
   preview: files.preview,
   visibility: files.visibility,
   sharedCount: files.sharedCount,
+  count: files.count,
   createdAt: files.createdAt,
   updatedAt: files.updatedAt,
 };
@@ -309,12 +310,16 @@ export const insertUpdateFile = async (
       .where(eq(files.path, path));
   }
   let parent = await ensurePath(bucketName, path, userId, true);
-  const preview = data.contentType.includes("image") ? path : null;
+  const fileType = getFileType(data.contentType);
+  const preview = fileType === "image" ? path : null;
+  if (preview) {
+    await setFolderThumbnail(parent.id, preview);
+  }
   const insertFile = {
     id: ulid() as string,
     name: path.split("/").pop() || "",
     path: path,
-    type: data.contentType,
+    type: fileType,
     size: data.size,
     contentType: data.contentType,
     userId: data.userId,
@@ -329,6 +334,7 @@ export const insertUpdateFile = async (
     .values(insertFile)
     .returning();
   if (response && response.length > 0) {
+    await updateCount(parent.id);
     return response[0];
   }
 };
@@ -709,4 +715,57 @@ export const transformList = async (bucketName: string, files: any) => {
     }))
   );
   return { data, nextPage: files.nextPage };
+};
+
+export const setFolderThumbnail = async (id: string, previewUrl: string) => {
+  // Get the folder
+  const folder = await getFolder(id);
+
+  if (folder && folder.type === "folder") {
+    try {
+      // Parse existing previews or initialize empty array
+      let previews = [];
+      if (folder.preview) {
+        try {
+          previews = JSON.parse(folder.preview);
+          // Ensure it's an array
+          if (!Array.isArray(previews)) {
+            previews = [];
+          }
+        } catch (e) {
+          // If parsing fails, start with empty array
+          previews = [];
+        }
+      }
+
+      // Check if the preview URL already exists in the array
+      const existingIndex = previews.indexOf(previewUrl);
+
+      // Only add if not already present and less than 4 previews
+      if (existingIndex === -1 && previews.length < 4) {
+        previews.push(previewUrl);
+        // Update the folder in the database
+        await useDrizzle()
+          .update(files)
+          .set({
+            preview: JSON.stringify(previews),
+            updatedAt: new Date(),
+          })
+          .where(eq(files.id, id));
+      }
+    } catch (error) {
+      console.error("Error updating folder thumbnail:", error);
+      throw error;
+    }
+  }
+};
+
+export const updateCount = async (id: string) => {
+  if (id === "root") return;
+  return await useDrizzle()
+    .update(files)
+    .set({
+      count: sql`count + 1`,
+    })
+    .where(eq(files.id, id));
 };

@@ -1,11 +1,11 @@
 import { insertUpdateFile, updateContentType } from "~~/server/utils/db";
+import { getContentType } from "~~/shared/utils/helper";
 
 export default eventHandler(async (event) => {
   const { user } = await verifyBucket(event);
   // @ts-ignore
   const userId = user.id;
   const { bucket, id } = getRouterParams(event);
-  let folderPath = "";
   if (id !== "root") {
     const folder = await getFolder(id);
     if (!folder) {
@@ -14,15 +14,12 @@ export default eventHandler(async (event) => {
         message: "Folder not found",
       });
     }
-    folderPath = folder.path;
   }
-  const prefix = `${bucket}/${folderPath}`;
-
   const response = await hubBlob().handleMultipartUpload(event);
   if (response.action === "complete") {
     // Remove the prefix only from the start of the pathname
     const contentType =
-      response.data.contentType || getFileType(response.data.pathname);
+      response.data.contentType || getContentType(response.data.pathname);
     const file = await insertUpdateFile(bucket, id, {
       ...response.data,
       fullPath: response.data.pathname,

@@ -1,4 +1,4 @@
-export const allowedExtensions = {
+export const allowedExtensions: Record<string, string> = {
   jpg: "image/jpeg",
   jpeg: "image/jpeg",
   png: "image/png",
@@ -43,7 +43,7 @@ export const validTextFiles = {
   js: "text/javascript",
 };
 
-export const fileTypes = {
+export const fileTypes: Record<string, string> = {
   folder: "folder",
   // image
   "image/png": "image",

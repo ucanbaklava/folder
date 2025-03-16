@@ -43,7 +43,7 @@ export const getFolderPath = (path: string) => {
   return pathParts.join("/");
 };
 
-export const getFileType = (path: string) => {
+export const getContentType = (path: string) => {
   const extension = path.split(".").pop()?.toLowerCase();
   // @ts-ignore
   return allowedExtensions[extension] || "application/octet-stream";
@@ -66,4 +66,8 @@ export const getVisibility = (
     }
   }
   return "private";
+};
+
+export const getFileType = (contentType: string) => {
+  return fileTypes[contentType] || contentType.split("/")[0];
 };
