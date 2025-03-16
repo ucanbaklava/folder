@@ -11,7 +11,12 @@ defineShortcuts({
   >
     <Logo />
     <template v-if="route.params.bucket">
-      <UTooltip text="Open Sidebar" :delay-duration="0" :kbds="['meta', 'B']">
+      <UTooltip
+        text="Open Sidebar"
+        arrow
+        :delay-duration="0"
+        :kbds="['meta', 'B']"
+      >
         <UButton
           :icon="aside ? 'lucide:x' : 'lucide:menu'"
           variant="text"

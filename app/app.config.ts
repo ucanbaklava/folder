@@ -107,5 +107,12 @@ export default defineAppConfig({
         tab: "text-sm font-light",
       },
     },
+    tooltip: {
+      slots: {
+        content:
+          "bg-(--ui-bg-inverted) text-(--ui-bg) ring-(--ui-border-inverted)",
+        arrow: "fill-(--ui-border-inverted)",
+      },
+    },
   },
 });

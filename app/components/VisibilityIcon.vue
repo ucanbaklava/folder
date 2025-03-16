@@ -9,7 +9,7 @@ const visibilityIcons = {
 };
 </script>
 <template>
-  <UTooltip :text="visibility" placement="top" :delay-duration="0">
+  <UTooltip :text="visibility" arrow placement="top" :delay-duration="0">
     <Icon
       v-if="visibilityIcons[visibility]"
       :name="visibilityIcons[visibility]"
