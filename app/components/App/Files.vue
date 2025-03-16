@@ -27,7 +27,11 @@ const onOpen = (file: IFile, index: number) => {
 };
 defineShortcuts({
   meta_a: () => {
-    selected.value = files.value.map((file) => file.id);
+    if (selected.value.length === files.value.length) {
+      selected.value = [];
+    } else {
+      selected.value = files.value.map((file) => file.id);
+    }
   },
 });
 </script>
