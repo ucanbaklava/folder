@@ -43,7 +43,18 @@ const uploadFile = async (file) => {
   // Get the relative path of the file within the uploaded folder structure
   // webkitRelativePath gives the path relative to the selected folder (e.g., "assets/images/background.png")
   const relativePath = file.webkitRelativePath || file.name;
-
+  const fileType = file.type.split("/")[0];
+  let dimensions = null;
+  if (fileType === "image") {
+    const image = new Image();
+    image.src = URL.createObjectURL(file);
+    await new Promise((resolve) => {
+      image.onload = () => {
+        dimensions = image.width + "x" + image.height;
+        resolve();
+      };
+    });
+  }
   // Use the relative path for progress tracking
   uploadProgress.value[relativePath] = 0;
 
@@ -74,6 +85,12 @@ const uploadFile = async (file) => {
       partSize: partSize,
       concurrent: 10,
       prefix: uploadPath,
+      fetchOptions: {
+        headers: {
+          "x-amz-meta-dimensions": dimensions,
+          "x-amz-meta-content-type": file.type,
+        },
+      },
     }
   );
   const { progress, completed, abort } = upload(file);

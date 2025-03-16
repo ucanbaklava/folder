@@ -15,6 +15,7 @@ const fileColumns = {
   visibility: files.visibility,
   sharedCount: files.sharedCount,
   count: files.count,
+  dimensions: files.dimensions,
   createdAt: files.createdAt,
   updatedAt: files.updatedAt,
 };
@@ -322,6 +323,7 @@ export const insertUpdateFile = async (
     type: fileType,
     size: data.size,
     contentType: data.contentType,
+    dimensions: data.dimensions,
     userId: data.userId,
     bucketName: bucketName,
     parentId: parent.id,
