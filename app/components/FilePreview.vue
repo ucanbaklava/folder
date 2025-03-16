@@ -3,8 +3,10 @@ const props = defineProps<{
   files: IFile[];
 }>();
 const { opened, open, limit, prevPage, nextPage } = usePreview();
-limit.value = props.files.length;
 const file = computed(() => props.files[opened.value]);
+watch(opened, () => {
+  limit.value = props.files.length;
+});
 </script>
 <template>
   <UModal v-if="opened >= 0" v-model:open="open" fullscreen>
@@ -28,12 +30,12 @@ const file = computed(() => props.files[opened.value]);
           class="min-w-96 w-96 border-l border-neutral-200/70 h-screen bg-neutral-100 flex flex-col"
         >
           <div
-            class="h-16 border-b border-neutral-200/70 bg-white w-full flex justify-between items-center px-4"
+            class="h-16 min-h-16 border-b border-neutral-200/70 bg-white w-full flex justify-between items-center px-4"
           >
             <h4>{{ file?.name }}</h4>
             <UButton icon="lucide:x" @click="open = false" />
           </div>
-          <div class="grow w-full">
+          <div class="grow w-full overflow-auto">
             <div
               class="flex flex-col items-start justify-start gap-4 h-full p-6"
             >
@@ -94,7 +96,7 @@ const file = computed(() => props.files[opened.value]);
             </div>
           </div>
           <div
-            class="h-16 border-t border-neutral-200/70 bg-white w-full flex justify-start items-center px-4"
+            class="h-16 min-h-16 border-t border-neutral-200/70 bg-white w-full flex justify-start items-center px-4"
           >
             <UButton
               v-if="opened > 0"
@@ -102,10 +104,10 @@ const file = computed(() => props.files[opened.value]);
               icon="lucide:chevron-left"
             />
             <span class="grow text-center text-sm"
-              >{{ opened + 1 }} / {{ files.length }}</span
+              >{{ opened + 1 }} / {{ limit }}</span
             >
             <UButton
-              v-if="opened < files.length - 1"
+              v-if="opened < limit - 1"
               @click="nextPage"
               icon="lucide:chevron-right"
               class="ml-auto"
