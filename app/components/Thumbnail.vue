@@ -30,7 +30,9 @@ const gridItems = computed(() => {
         :key="index"
         class="w-full aspect-square bg-center bg-cover bg-neutral-200 dark:bg-neutral-700"
         :style="
-          preview && { backgroundImage: `url(${getPreviewUrl(preview)})` }
+          preview && {
+            backgroundImage: `url(${getPreviewUrl(preview, file.deletedAt)})`,
+          }
         "
       >
         <!-- Show count indicator only in the last cell if there are more files -->
@@ -52,7 +54,7 @@ const gridItems = computed(() => {
   </template>
   <img
     v-else-if="file.preview"
-    :src="getPreviewUrl(file.preview)"
+    :src="getPreviewUrl(file.preview, file.deletedAt)"
     alt="preview"
     class="absolute inset-0 w-full h-full object-contain"
   />

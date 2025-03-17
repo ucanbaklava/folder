@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatTimeAgo } from "@vueuse/core";
 const { file, dir, selected } = defineProps<{
   file: IFile;
   dir: "row" | "col";
@@ -19,8 +20,8 @@ const summary = computed(() => {
         'flex w-full shadow shadow-neutral-400/20 dark:shadow-neutral-800/20',
         dir === 'row' ? 'flex-row' : 'flex-col',
       ]"
-      @click.stop="emit('select', file.id)"
-      @dblclick="emit('open', file.id)"
+      @click.stop="!file.deletedAt && emit('select', file.id)"
+      @dblclick="!file.deletedAt && emit('open', file.id)"
     >
       <div
         :class="[
@@ -48,13 +49,21 @@ const summary = computed(() => {
           <div class="text-xs uppercase opacity-70 break-all line-clamp-1">
             {{ summary }}
           </div>
+          <div
+            v-if="file.deletedAt"
+            class="text-xs uppercase opacity-70 break-all line-clamp-1 text-right"
+          >
+            {{ formatTimeAgo(new Date(file.deletedAt)) }}
+          </div>
         </div>
-        <Icon
-          v-if="file.sharedCount"
-          name="lucide:users"
-          class="opacity-70 mr-2 min-w-4"
-        />
-        <VisibilityIcon :visibility="file.visibility" />
+        <template v-if="!file.deletedAt">
+          <Icon
+            v-if="file.sharedCount"
+            name="lucide:users"
+            class="opacity-70 mr-2 min-w-4"
+          />
+          <VisibilityIcon :visibility="file.visibility" />
+        </template>
       </div>
     </div>
   </FileMenu>

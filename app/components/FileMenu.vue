@@ -108,6 +108,7 @@ watch(deleting, (value) => {
 </script>
 <template>
   <UContextMenu
+    :disabled="!!file.deletedAt"
     :items="fileMenuItems"
     size="xl"
     :ui="{

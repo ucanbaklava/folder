@@ -17,6 +17,7 @@ interface IFile {
   isFavorite?: string;
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string;
 }
 
 interface FilesFetchResponse {

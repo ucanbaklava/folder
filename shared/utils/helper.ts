@@ -17,8 +17,12 @@ export const pathShouldStartWithBucketName = (
   }
 };
 
-export const getPreviewUrl = (path: string) => {
-  return "/preview/" + encodeURI(path);
+export const getPreviewUrl = (path: string, deletedAt?: string) => {
+  return (
+    "/preview/" +
+    encodeURI(path) +
+    (deletedAt ? `?trashed=${new Date(deletedAt).toISOString()}` : "")
+  );
 };
 
 export const encodeURI = (path: string) => {
