@@ -1,4 +1,14 @@
-import { asc, eq, ne, sql, and, desc, inArray } from "drizzle-orm";
+import {
+  asc,
+  eq,
+  ne,
+  sql,
+  and,
+  desc,
+  inArray,
+  isNull,
+  isNotNull,
+} from "drizzle-orm";
 import { ulid } from "ulidx";
 import { users, files, buckets, favorites, shared } from "../database/schema";
 
@@ -163,6 +173,7 @@ export const getFiles = async (event, userId) => {
 
   // 🔸 Filtering
   filters.push(eq(files.userId, userId));
+  filters.push(isNull(files.deletedAt));
   if (params.id) {
     filters.push(eq(files.parentId, params.id));
   } else {
@@ -205,11 +216,23 @@ export const getFiles = async (event, userId) => {
   };
 };
 
-export const getFile = async (bucketName: string, path: string) => {
+export const getFile = async (
+  bucketName: string,
+  path: string,
+  deletedAt?: Date
+) => {
+  const filters = [];
+  filters.push(eq(files.bucketName, bucketName));
+  filters.push(eq(files.path, path));
+  if (deletedAt) {
+    filters.push(eq(files.deletedAt, deletedAt));
+  } else {
+    filters.push(isNull(files.deletedAt));
+  }
   const result = await useDrizzle()
     .select()
     .from(files)
-    .where(and(eq(files.bucketName, bucketName), eq(files.path, path)));
+    .where(and(...filters));
   if (result && result.length > 0) {
     return result[0];
   }
@@ -399,6 +422,7 @@ export const searchFiles = async (bucketName: string, query: string) => {
 
   // 🔸 Filtering
   filters.push(eq(files.bucketName, bucketName));
+  filters.push(isNull(files.deletedAt));
   if (query) {
     filters.push(sql`LOWER(name) LIKE LOWER(${`%${query}%`})`);
   }
@@ -406,14 +430,6 @@ export const searchFiles = async (bucketName: string, query: string) => {
 
   const data = await dataQuery;
   return data;
-};
-
-export const deleteFiles = async (bucketName: string, items: string[]) => {
-  // TODO: delete children also, if the type is folder
-  // TODO: move files form bucket to trash
-  return await useDrizzle()
-    .delete(files)
-    .where(and(eq(files.bucketName, bucketName), inArray(files.id, items)));
 };
 
 export const setFavorite = async (userId: string, fileId: string) => {
@@ -520,7 +536,11 @@ export const getFavorites = async (event: any, userId: string) => {
     .from(favorites)
     .leftJoin(files, eq(favorites.fileId, files.id))
     .where(
-      and(eq(favorites.userId, userId), eq(files.bucketName, params.bucket))
+      and(
+        eq(favorites.userId, userId),
+        eq(files.bucketName, params.bucket),
+        isNull(files.deletedAt)
+      )
     )
     .$dynamic();
 
@@ -548,7 +568,7 @@ export const getSharedWithMe = async (userId: string, queryString: any) => {
     })
     .from(shared)
     .leftJoin(files, eq(shared.fileId, files.id))
-    .where(eq(shared.userId, userId))
+    .where(and(eq(shared.userId, userId), isNull(files.deletedAt)))
     .$dynamic();
 
   // 🔸 Sorting
@@ -586,6 +606,7 @@ export const getPublished = async (event: any, userId: string) => {
   // 🔸 Filtering
   filters.push(eq(files.userId, userId));
   filters.push(eq(files.visibility, "public"));
+  filters.push(isNull(files.deletedAt));
 
   dataQuery = dataQuery.where(and(...filters));
 
@@ -622,6 +643,7 @@ export const getRecent = async (event: any, userId: string) => {
 
   // 🔸 Filtering
   filters.push(eq(files.userId, userId));
+  filters.push(isNull(files.deletedAt));
   dataQuery = dataQuery.where(and(...filters));
 
   // 🔸 Sorting
@@ -770,4 +792,105 @@ export const updateCount = async (id: string) => {
       count: sql`count + 1`,
     })
     .where(eq(files.id, id));
+};
+
+export const getFilesRecursive = async (
+  bucketName: string,
+  items: string[]
+) => {
+  const allIds: string[] = [];
+  const response = await useDrizzle()
+    .select()
+    .from(files)
+    .where(and(eq(files.bucketName, bucketName), inArray(files.id, items)));
+  if (response && response.length > 0) {
+    const folderIds: string[] = [];
+    response.forEach((item) => {
+      if (item.type === "folder") folderIds.push(item.id);
+      allIds.push(item.id);
+    });
+    if (folderIds.length > 0) {
+      const children = await useDrizzle()
+        .select()
+        .from(files)
+        .where(
+          and(
+            eq(files.bucketName, bucketName),
+            inArray(files.parentId, folderIds)
+          )
+        );
+      if (children && children.length > 0) {
+        const childrenIds = await getFilesRecursive(
+          bucketName,
+          children?.map((item) => item.id) || []
+        );
+        if (childrenIds) {
+          allIds.push(...childrenIds);
+        }
+      }
+    }
+  }
+  return allIds;
+};
+
+export const deleteFiles = async (bucketName: string, items: string[]) => {
+  const deletedAt = new Date();
+  const allIds = await getFilesRecursive(bucketName, items);
+  const response = await useDrizzle()
+    .update(files)
+    .set({ deletedAt })
+    .where(
+      and(
+        eq(files.bucketName, bucketName),
+        inArray(files.id, allIds),
+        isNull(files.deletedAt)
+      )
+    )
+    .returning();
+
+  await Promise.all(
+    response.map(async (item) => {
+      if (item.type !== "folder") {
+        await moveBlob(
+          item.path,
+          `.trash/${bucketName}/${item.deletedAt?.toISOString()}/${item.path}`
+        );
+      }
+    })
+  );
+  return { success: true, deleted: allIds.length };
+};
+
+export const getTrashed = async (event: any, userId: string) => {
+  const queryString = getQuery(event);
+  const filters = [];
+
+  let dataQuery = useDrizzle()
+    .select({
+      ...fileColumns,
+      deletedAt: files.deletedAt,
+    })
+    .from(files)
+    .$dynamic();
+
+  // 🔸 Filtering
+  filters.push(eq(files.userId, userId));
+  filters.push(isNotNull(files.deletedAt));
+
+  dataQuery = dataQuery.where(and(...filters));
+
+  // 🔸 Sorting
+  dataQuery = dataQuery.orderBy(desc(files.deletedAt));
+
+  // 🔸 Pagination
+  dataQuery = makePaginate(dataQuery, queryString);
+
+  const data = await dataQuery;
+
+  const nextPage =
+    data.length === perPage ? Number(queryString.page) + 1 : null;
+  return {
+    data,
+    nextPage,
+  };
 };

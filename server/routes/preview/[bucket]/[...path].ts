@@ -1,14 +1,19 @@
 export default defineEventHandler(async (event) => {
   await verifyBucket(event);
   const params = getRouterParams(event);
+  const query = getQuery(event);
   if (!params.path) {
     throw createError({
       status: 404,
       message: "Page not found",
     });
   }
+  let deletedAt;
+  if (query.trashed) {
+    deletedAt = new Date(query.trashed as string);
+  }
   const fullPath = params.bucket + "/" + decodeURIComponent(params.path);
-  const file = await getFile(params.bucket, fullPath);
+  const file = await getFile(params.bucket, fullPath, deletedAt);
   if (!file) {
     throw createError({
       status: 404,
@@ -16,7 +21,10 @@ export default defineEventHandler(async (event) => {
     });
   }
   if (file.type !== "folder") {
-    return await hubBlob().serve(event, fullPath);
+    const filePath = deletedAt
+      ? `.trash/${params.bucket}/${deletedAt.toISOString()}/${fullPath}`
+      : fullPath;
+    return await hubBlob().serve(event, filePath);
   } else {
     throw createError({
       status: 404,
