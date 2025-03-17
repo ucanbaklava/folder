@@ -17,7 +17,7 @@ const { dir } = defineProps<{
         dir === 'row' ? 'w-24' : 'w-full',
       ]"
     >
-      <div class="bg-white p-2 w-ful h-full">
+      <div class="bg-white dark:bg-neutral-950 p-2 w-ful h-full">
         <USkeleton class="w-full h-full" />
       </div>
     </div>

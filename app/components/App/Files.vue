@@ -68,7 +68,7 @@ defineShortcuts({
     </AppView>
     <div
       v-if="!loading && files.length === 0"
-      class="flex flex-col items-center justify-center min-h-[50vh] border border-neutral-200 dark:border-neutral-800 bg-white rounded-lg p-8 opacity-50"
+      class="flex flex-col items-center justify-center min-h-[50vh] border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black rounded-lg p-8 opacity-50"
     >
       <Icon name="lucide:hard-drive" class="size-16 *:stroke-[1px]" />
       <div class="text-lg">No files found</div>
