@@ -78,6 +78,13 @@
       "when": 1742036478764,
       "tag": "0010_optimal_blob",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1742208895580,
+      "tag": "0011_demonic_the_renegades",
+      "breakpoints": true
     }
   ]
 }

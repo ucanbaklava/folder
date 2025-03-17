@@ -1,4 +1,10 @@
-import { sqliteTable, text, integer, unique } from "drizzle-orm/sqlite-core";
+import {
+  sqliteTable,
+  text,
+  integer,
+  unique,
+  index,
+} from "drizzle-orm/sqlite-core";
 
 const autoIncrement = integer({ mode: "number" }).primaryKey({
   autoIncrement: true,
@@ -28,25 +34,40 @@ export const buckets = sqliteTable("buckets", {
   updatedAt: updatedAt,
 });
 
-export const files = sqliteTable("files", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  contentType: text("content_type").notNull(),
-  type: text("type").notNull(),
-  size: integer("size").notNull(),
-  path: text("path").notNull().unique(),
-  visibility: text("visibility").default("inherit").notNull(), // public, private, inherit
-  preview: text("preview"),
-  dimensions: text("dimensions"),
-  count: integer("count").default(0).notNull(), // file/folder count in this folder
-  parentId: text("parent_id").default("root").notNull(),
-  bucketName: text("bucket_name").notNull(),
-  userId: text("user_id").notNull(),
-  sharedCount: integer("shared_count").default(0).notNull(),
-  createdAt: createdAt,
-  updatedAt: updatedAt,
-  deletedAt: deletedAt,
-});
+export const files = sqliteTable(
+  "files",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    contentType: text("content_type").notNull(),
+    type: text("type").notNull(),
+    size: integer("size").notNull(),
+    path: text("path").notNull(),
+    visibility: text("visibility").default("inherit").notNull(), // public, private, inherit
+    metadata: text("metadata", { mode: "json" }),
+    preview: text("preview"),
+    dimensions: text("dimensions"),
+    count: integer("count").default(0).notNull(), // file/folder count in this folder
+    parentId: text("parent_id").default("root").notNull(),
+    bucketName: text("bucket_name").notNull(),
+    userId: text("user_id").notNull(),
+    sharedCount: integer("shared_count").default(0).notNull(),
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+    deletedAt: deletedAt,
+  },
+  (t) => [
+    unique().on(t.path, t.deletedAt),
+    // Add these new indexes for performance
+    index("idx_files_parent_id").on(t.parentId),
+    index("idx_files_bucket_user").on(t.bucketName, t.userId),
+    index("idx_files_deleted_at").on(t.deletedAt),
+    // For search optimizations
+    index("idx_files_name").on(t.name),
+    // For folder navigation
+    index("idx_files_type_parent").on(t.type, t.parentId),
+  ]
+);
 
 export const favorites = sqliteTable(
   "favorites",
@@ -56,7 +77,10 @@ export const favorites = sqliteTable(
     userId: text("user_id").notNull(),
     createdAt: createdAt,
   },
-  (t) => [unique().on(t.fileId, t.userId)]
+  (t) => [
+    unique().on(t.fileId, t.userId),
+    index("idx_favorites_user_id").on(t.userId),
+  ]
 );
 
 export const shared = sqliteTable(
@@ -68,7 +92,11 @@ export const shared = sqliteTable(
     role: text("role").default("viewer").notNull(),
     createdAt: createdAt,
   },
-  (t) => [unique().on(t.fileId, t.userId)]
+  (t) => [
+    unique().on(t.fileId, t.userId),
+    index("idx_shared_user_id").on(t.userId),
+    index("idx_shared_file_id").on(t.fileId),
+  ]
 );
 
 export const website = sqliteTable("website", {
