@@ -45,7 +45,7 @@ export const files = sqliteTable("files", {
   sharedCount: integer("shared_count").default(0).notNull(),
   createdAt: createdAt,
   updatedAt: updatedAt,
-  deleteAt: deletedAt,
+  deletedAt: deletedAt,
 });
 
 export const favorites = sqliteTable(
