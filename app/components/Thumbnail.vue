@@ -28,7 +28,7 @@ const gridItems = computed(() => {
       <div
         v-for="(preview, index) in gridItems"
         :key="index"
-        class="w-full aspect-square bg-center bg-cover bg-neutral-200"
+        class="w-full aspect-square bg-center bg-cover bg-neutral-200 dark:bg-neutral-700"
         :style="
           preview && { backgroundImage: `url(${getPreviewUrl(preview)})` }
         "
