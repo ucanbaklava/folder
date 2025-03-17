@@ -36,64 +36,7 @@ watch(opened, () => {
             <UButton icon="lucide:x" @click="open = false" />
           </div>
           <div class="grow w-full overflow-auto">
-            <div
-              class="flex flex-col items-start justify-start gap-4 h-full p-6"
-            >
-              <div>
-                <div class="text-neutral-950 text-xs font-semibold uppercase">
-                  File Path
-                </div>
-                <div class="text-neutral-700 font-light">
-                  {{ file?.path }}
-                </div>
-              </div>
-              <div>
-                <div class="text-neutral-950 text-xs font-semibold uppercase">
-                  File Size
-                </div>
-                <div class="text-neutral-700 font-light">
-                  {{ formatBytes(file?.size ?? 0) }}
-                </div>
-              </div>
-              <div>
-                <div class="text-neutral-950 text-xs font-semibold uppercase">
-                  Type
-                </div>
-                <div class="text-neutral-700 font-light">{{ file?.type }}</div>
-              </div>
-              <div>
-                <div class="text-neutral-950 text-xs font-semibold uppercase">
-                  Content Type
-                </div>
-                <div class="text-neutral-700 font-light">
-                  {{ file?.contentType }}
-                </div>
-              </div>
-              <div>
-                <div class="text-neutral-950 text-xs font-semibold uppercase">
-                  Visibility
-                </div>
-                <div class="text-neutral-700 font-light">
-                  {{ file?.visibility }}
-                </div>
-              </div>
-              <div>
-                <div class="text-neutral-950 text-xs font-semibold uppercase">
-                  Added On
-                </div>
-                <div class="text-neutral-700 font-light">
-                  {{ file?.createdAt }}
-                </div>
-              </div>
-              <div v-if="file?.updatedAt !== file?.createdAt">
-                <div class="text-neutral-950 text-xs font-semibold uppercase">
-                  Modified On
-                </div>
-                <div class="text-neutral-700 font-light">
-                  {{ file?.updatedAt }}
-                </div>
-              </div>
-            </div>
+            <FileInfo v-if="file" :file="file" />
           </div>
           <div
             class="h-16 min-h-16 border-t border-neutral-200/70 bg-white w-full flex justify-start items-center px-4"

@@ -25,7 +25,10 @@ const { data: files, status } = await useFetch(
           label: getFolderPath(file.path) + "/",
           suffix: file.name,
           icon: fileIcon(file.type),
-          to: `/${route.params.bucket}/${file.id}`,
+          to:
+            file.type === "folder"
+              ? `/${route.params.bucket}/${file.id}`
+              : `/${route.params.bucket}/file/${file.id}`,
         })) || []
       );
     },
