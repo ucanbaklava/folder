@@ -2,6 +2,10 @@
 
 An open-source, serverless **Digital Asset Management (DAM)** software that helps you **store, organize, and share** files and folders. With **Folder**, you can securely share files, manage permissions, and even publish folders as a static website.
 
+![Folder Preview](https://folder.run/preview/0.png)
+![Folder Preview](https://folder.run/preview/6.png)
+![Folder Preview](https://folder.run/preview/1.png)
+
 ## Why Folder?
 
 - **Alternative to Google Drive**: Store files, manage assets, and serve them via CDN.
