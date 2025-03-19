@@ -7,7 +7,7 @@ const providers = {
   github: {
     icon: "logos:github-icon",
     label: "Continue with GitHub",
-    class: "size-6 *:fill-white",
+    class: "size-6 *:fill-white dark:*:fill-neutral-900",
   },
   google: {
     icon: "logos:google-icon",
